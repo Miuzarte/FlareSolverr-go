@@ -2,6 +2,7 @@ package FlareSolverr
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"maps"
@@ -14,12 +15,12 @@ func NewClient(endpoint string) *Client {
 	}
 }
 
-func (c *Client) Get(url string, params map[string]any) (*Solution, error) {
-	return c.RequestGet(url, params)
+func (c *Client) Get(ctx context.Context, url string, params map[string]any) (*Solution, error) {
+	return c.RequestGet(ctx, url, params)
 }
 
-func (c *Client) Post(url string, postData string, params map[string]any) (*Solution, error) {
-	return c.RequestPost(url, postData, params)
+func (c *Client) Post(ctx context.Context, url string, postData string, params map[string]any) (*Solution, error) {
+	return c.RequestPost(ctx, url, postData, params)
 }
 
 // params:
@@ -33,7 +34,7 @@ func (c *Client) Post(url string, postData string, params map[string]any) (*Solu
 //	returnScreenshot: false
 //	proxy: {PARAM_URL: "http://127.0.0.1:7890", "username": "testuser", "password": "testpass"}
 //	waitInSeconds: 0 // Useful to allow it to load dynamic content.
-func (c *Client) RequestGet(url string, params map[string]any) (*Solution, error) {
+func (c *Client) RequestGet(ctx context.Context, url string, params map[string]any) (*Solution, error) {
 	var p map[string]any
 	if params == nil {
 		p = map[string]any{
@@ -43,7 +44,7 @@ func (c *Client) RequestGet(url string, params map[string]any) (*Solution, error
 		p = params
 		p[PARAM_URL] = url
 	}
-	resp, err := c.Submit(CMD_REQUEST_GET, p)
+	resp, err := c.Submit(ctx, CMD_REQUEST_GET, p)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func (c *Client) RequestGet(url string, params map[string]any) (*Solution, error
 //	(*)url
 //	postData: "a=b&c=d" // application/x-www-form-urlencoded
 //	// other params same as [Client.RequestGet]
-func (c *Client) RequestPost(url string, postData string, params map[string]any) (*Solution, error) {
+func (c *Client) RequestPost(ctx context.Context, url string, postData string, params map[string]any) (*Solution, error) {
 	var p map[string]any
 	if params == nil {
 		p = map[string]any{
@@ -67,7 +68,7 @@ func (c *Client) RequestPost(url string, postData string, params map[string]any)
 		p[PARAM_URL] = url
 		p[PARAM_POST_DATA] = postData
 	}
-	resp, err := c.Submit(CMD_REQUEST_POST, p)
+	resp, err := c.Submit(ctx, CMD_REQUEST_POST, p)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +79,7 @@ func (c *Client) RequestPost(url string, postData string, params map[string]any)
 //
 //	(*)session
 //	proxy: {"url": "http://127.0.0.1:7890", "username": "testuser", "password": "testpass"}
-func (c *Client) SessionsCreate(session string, params map[string]any) error {
+func (c *Client) SessionsCreate(ctx context.Context, session string, params map[string]any) error {
 	var p map[string]any
 	if params == nil {
 		p = map[string]any{
@@ -88,7 +89,7 @@ func (c *Client) SessionsCreate(session string, params map[string]any) error {
 		p = params
 		p[PARAM_SESSION] = session
 	}
-	_, err := c.Submit(CMD_SESSIONS_CREATE, p)
+	_, err := c.Submit(ctx, CMD_SESSIONS_CREATE, p)
 	if err != nil {
 		return err
 	}
@@ -98,8 +99,8 @@ func (c *Client) SessionsCreate(session string, params map[string]any) error {
 // params:
 //
 //	(*)session
-func (c *Client) SessionsDestroy(session string) error {
-	_, err := c.Submit(CMD_SESSIONS_DESTROY, map[string]any{
+func (c *Client) SessionsDestroy(ctx context.Context, session string) error {
+	_, err := c.Submit(ctx, CMD_SESSIONS_DESTROY, map[string]any{
 		PARAM_SESSION: session,
 	})
 	if err != nil {
@@ -108,8 +109,8 @@ func (c *Client) SessionsDestroy(session string) error {
 	return nil
 }
 
-func (c *Client) SessionsList() ([]string, error) {
-	resp, err := c.Submit(CMD_SESSIONS_LIST, nil)
+func (c *Client) SessionsList(ctx context.Context) ([]string, error) {
+	resp, err := c.Submit(ctx, CMD_SESSIONS_LIST, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +118,7 @@ func (c *Client) SessionsList() ([]string, error) {
 }
 
 // Submit 直接提交命令和参数至 FlareSolverr, 返回 Response 结构体
-func (c *Client) Submit(cmd string, params map[string]any) (*Response, error) {
+func (c *Client) Submit(ctx context.Context, cmd string, params map[string]any) (*Response, error) {
 	var body []byte
 	if params != nil {
 		p := maps.Clone(params) // 避免修改传入的参数
@@ -131,7 +132,7 @@ func (c *Client) Submit(cmd string, params map[string]any) (*Response, error) {
 		body = []byte(`{"` + PARAM_CMD + `":"` + cmd + `"}`)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.Endpoint, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.Endpoint, bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}

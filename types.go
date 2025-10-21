@@ -54,7 +54,7 @@ type Response struct {
 }
 
 type Solution struct {
-	URL        string            `json:"url"`
+	Url        string            `json:"url"`
 	Status     int               `json:"status"`
 	Cookies    Cookies           `json:"cookies"`
 	UserAgent  string            `json:"userAgent"`
