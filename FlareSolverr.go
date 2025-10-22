@@ -32,7 +32,7 @@ func (c *Client) Post(ctx context.Context, url string, postData string, params m
 //	cookies: [{"name": "cookie1", "value": "value1"}, {"name": "cookie2", "value": "value2"}]
 //	returnOnlyCookies: false
 //	returnScreenshot: false
-//	proxy: {PARAM_URL: "http://127.0.0.1:7890", "username": "testuser", "password": "testpass"}
+//	proxy: {"url": "http://127.0.0.1:7890", "username": "testuser", "password": "testpass"}
 //	waitInSeconds: 0 // Useful to allow it to load dynamic content.
 func (c *Client) RequestGet(ctx context.Context, url string, params map[string]any) (*Solution, error) {
 	var p map[string]any
