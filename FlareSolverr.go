@@ -15,11 +15,11 @@ func NewClient(endpoint string) *Client {
 	}
 }
 
-func (c *Client) Get(ctx context.Context, url string, params map[string]any) (*Solution, error) {
+func (c *Client) Get(ctx context.Context, url string, params map[string]any) (*Response, error) {
 	return c.RequestGet(ctx, url, params)
 }
 
-func (c *Client) Post(ctx context.Context, url string, postData string, params map[string]any) (*Solution, error) {
+func (c *Client) Post(ctx context.Context, url string, postData string, params map[string]any) (*Response, error) {
 	return c.RequestPost(ctx, url, postData, params)
 }
 
@@ -34,7 +34,7 @@ func (c *Client) Post(ctx context.Context, url string, postData string, params m
 //	returnScreenshot: false
 //	proxy: {"url": "http://127.0.0.1:7890", "username": "testuser", "password": "testpass"}
 //	waitInSeconds: 0 // Useful to allow it to load dynamic content.
-func (c *Client) RequestGet(ctx context.Context, url string, params map[string]any) (*Solution, error) {
+func (c *Client) RequestGet(ctx context.Context, url string, params map[string]any) (*Response, error) {
 	var p map[string]any
 	if params == nil {
 		p = map[string]any{
@@ -48,7 +48,7 @@ func (c *Client) RequestGet(ctx context.Context, url string, params map[string]a
 	if err != nil {
 		return nil, err
 	}
-	return resp.Solution, nil
+	return resp, nil
 }
 
 // params:
@@ -56,7 +56,7 @@ func (c *Client) RequestGet(ctx context.Context, url string, params map[string]a
 //	(*)url
 //	postData: "a=b&c=d" // application/x-www-form-urlencoded
 //	// other params same as [Client.RequestGet]
-func (c *Client) RequestPost(ctx context.Context, url string, postData string, params map[string]any) (*Solution, error) {
+func (c *Client) RequestPost(ctx context.Context, url string, postData string, params map[string]any) (*Response, error) {
 	var p map[string]any
 	if params == nil {
 		p = map[string]any{
@@ -72,7 +72,7 @@ func (c *Client) RequestPost(ctx context.Context, url string, postData string, p
 	if err != nil {
 		return nil, err
 	}
-	return resp.Solution, nil
+	return resp, nil
 }
 
 // params:
