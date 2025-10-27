@@ -31,14 +31,14 @@ func main() {
 	client := fs.NewClient("http://127.0.0.1:8191/v1")
 
 	// GET 简单示例
-	sol, err := client.Get("https://example.com", nil)
+	resp, err := client.Get("https://example.com", nil)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Status:", sol.Status)
-	fmt.Println("URL:", sol.URL)
-	fmt.Println("UA:", sol.UserAgent)
-	fmt.Println("Body length:", len(sol.Response))
+	fmt.Println("Status:", resp.Solution.Status)
+	fmt.Println("URL:", resp.Solution.URL)
+	fmt.Println("UA:", resp.Solution.UserAgent)
+	fmt.Println("Body length:", len(resp.Solution.Response))
 }
 ```
 
@@ -47,7 +47,7 @@ func main() {
 ### 基础 GET
 
 ```go
-sol, err := client.Get("https://example.com", nil)
+resp, err := client.Get("https://example.com", nil)
 ```
 
 带参数：
@@ -59,7 +59,7 @@ params := map[string]any{
 	fs.PARAM_RETURN_ONLY_COOKIES: false,     // 仅返回 cookies
 	fs.PARAM_WAIT_IN_SECONDS: 0,             // 等待页面稳定（动态内容）
 }
-sol, err := client.Get("https://example.com", params)
+resp, err := client.Get("https://example.com", params)
 ```
 
 ### 基础 POST
@@ -70,7 +70,7 @@ sol, err := client.Get("https://example.com", params)
 params := map[string]any{
 	fs.PARAM_MAX_TIMEOUT: 60000,
 }
-sol, err := client.Post("https://httpbin.org/post", "a=b&c=d", params)
+resp, err := client.Post("https://httpbin.org/post", "a=b&c=d", params)
 ```
 
 ### 代理与会话
@@ -89,7 +89,7 @@ _ = client.SessionsCreate("mysess", params)
 
 // 会话内请求
 params[fs.PARAM_SESSION] = "mysess"
-sol, err := client.Get("https://example.com", params)
+resp, err := client.Get("https://example.com", params)
 
 // 列出/销毁会话
 list, _ := client.SessionsList()
@@ -100,7 +100,7 @@ _ = client.SessionsDestroy("mysess")
 
 ```go
 sol, _ := client.Get("https://example.com", nil)
-httpCookies := sol.Cookies.ToHttpCookies() // []*http.Cookie
+httpCookies := resp.Solution.Cookies.ToHttpCookies() // []*http.Cookie
 ```
 
 ### 原始 Submit 接口
@@ -160,4 +160,3 @@ fmt.Println("session:", resp.Session)
 ## 许可
 
 遵循与上游相同的开源许可（见仓库 LICENSE）。
-
